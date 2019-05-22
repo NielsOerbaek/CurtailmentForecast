@@ -18,8 +18,9 @@
   <div class="navbar-fixed">
     <nav>
       <div class="nav-wrapper indigo">
-        <a href="#" class="brand-logo center">Curtailment Forecast for the Orkney ANM</a>
+        <a href="/" class="brand-logo center">Curtailment Forecast for the Orkney ANM</a>
         <ul id="nav-mobile" class="right">
+          <li><a href="http://curtailment.net">Graph Tool</a></li>
           <li><a class=" modal-trigger" href="#modal1">About this page</a></li>
         </ul>
       </div>
@@ -45,7 +46,7 @@
         <h4 id="_whomadethis_"><em>Who made this?</em></h4>
 
         <p>This website is a  by-product of a MSc-thesis project by <a href="mailto:niec@itu.dk">Niels Ørbæk Christensen</a> at the IT University of Copenhagen, made in collaboration with the <a href="http://orkneycloud.org/">Orkney Cloud</a> project, invisioning community-led data services in Orkney. </p>
-
+        <p>You should also check out the ANM graph tool over at <a href="http://curtailment.net">http://curtailment.net</a>.
         <p>The author would like to give thanks to Andrew and Clive of Eday Renewable Energy Ltd, for allowing us to use the wind data from their turbine.</p>
         <div class="modal-footer">
           <a href="#!" class="modal-close waves-effect waves-green btn-flat">Ok!</a>
@@ -54,7 +55,7 @@
     </div>
 
     <div id="forecasts">
-      <h1>Todays forecast</h1>
+      <h1>Today's forecast</h1>
       <div class="single-day day-0">
         <h2></h2>
         <div class="times">
@@ -119,7 +120,7 @@ function parseAndPredict(p, model) {
   forecasts = []
   days.forEach((day,i) => {
     sameDay = new Object()
-    sameDay.date =  moment.utc(day.value, "YYYY-MM-DD[Z]")
+    sameDay.date =  moment(day.value, "YYYY-MM-DD[Z]")
     sameDay.times = []
     day.Rep.forEach((t,i) => {
       time = new Object()
@@ -142,12 +143,14 @@ function renderForecast(fs) {
     $("#forecasts .single-day.day-"+i+" h2").html(d.date.format("dddd, MMM Do"))
     $day = $("#forecasts .single-day.day-"+i+" .times")
     d.times.forEach((t,i) => {
-      if(moment.utc()-3599 < t.date) {
+      if(moment().subtract(3,"hours") < t.date) {
         $time = $("<div class='single-time card-panel' style='background-color:"+getColor(t.risk)+"'></div>").appendTo($day)
         $time.append("<h4>"+t.date.format("HH:mm")+"</h4>")
         $time.append("<div class='risk-digits'>"+parseInt(t.risk*100)+"%<br/><div class='risk-text'>risk of curtailment</div></div>")
         $time.append("<div class='wind-speed'>Winds: "+t.speed.toFixed(1)+" m/s</div>")
         //$time.append("<div class='risk-bar' style='height:"+parseInt(t.prediction*100)+"%'</div>")
+      } else {
+        console.log(moment(), t.date)
       }
     })
   })
@@ -208,7 +211,7 @@ function makeGraph(fs) {
             unit: 'hour',
             stepSize: 12,
             displayFormats: {
-              hour: "MMM Do\n HH:mm"
+              hour: "ddd HH:mm"
             }
           },
           ticks: {
