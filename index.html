@@ -101,7 +101,7 @@
 <script>
 (async () => {
   $(".load-modal").fadeIn()
-  const model = await tf.loadLayersModel("data/WT-FFNN-ERE-Extended/model.json");
+  const model = await tf.loadLayersModel("data/WT-Percep-ERE/model.json");
   $.ajax(apiUrl).done(p => {
     forecasts = parseAndPredict(p, model)
     renderForecast(forecasts)
@@ -113,7 +113,8 @@
 const apiUrl = "http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/354165?res=3hourly&key=b3bc673f-ff3c-40e7-9b50-dca48be4a2b1"
 moment.defaultFormat = "HH:mm DD.MM.YYYY"
 const mph_to_mps = 0.44704
-const pred_to_risk = [0,0,0,0,0,0.00605187,0.02012167,0.15155758,0.42657115,0.60959613,0.7380742,0.82614943,0.79545455,0.78070974,0.78070974,0.78070974,0.78070974,0.78070974,0.78070974,0.78070974,,0.78070974]
+const pred_to_risk = [ 0,0,0.0,0.0,0.0,0.004700352526439483,0.013785790031813362,0.07435197817189632,0.24439461883408073,0.484375,0.588715953307393,0.7629255989911727,0.811217510259918,0.7034068136272545,0.6620370370370371,0.6879194630872483,0.6879194630872483,0.6879194630872483,0.6879194630872483,0.6879194630872483,0.6879194630872483]
+
 
 function parseAndPredict(p, model) {
   days = p.SiteRep.DV.Location.Period
@@ -184,7 +185,7 @@ function makeGraph(fs) {
   grd = document.getElementById('long-term-graph').getContext("2d").createLinearGradient(150.000, 300.000, 150.000, 0.000);
 
   // Add colors
-  grd.addColorStop(0.000, 'rgba(0, 255, 2, 1.000)');
+  grd.addColorStop(0.000, 'rgba(0, 255, 0, 1.000)');
   grd.addColorStop(0.500, 'rgba(255, 255, 0, 1.000)');
   grd.addColorStop(1.000, 'rgba(255, 0, 0, 1.000)');
 
