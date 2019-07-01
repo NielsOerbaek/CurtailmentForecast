@@ -98,34 +98,24 @@
 <div class="load-modal"><div class="lds-grid loader"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
 
 <script>
+(async () => {
+  $(".load-modal").fadeIn()
+  const model = await tf.loadLayersModel("data/WT-Percep-ERE/model.json");
+  $.ajax(apiUrl).done(p => {
+    forecasts = parseAndPredict(p, model)
+    renderForecast(forecasts)
+    makeGraph(forecasts)
+    $(".load-modal").fadeOut()
+  })
+})();
 
 const apiUrl = "http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/354165?res=3hourly&key=b3bc673f-ff3c-40e7-9b50-dca48be4a2b1"
 moment.defaultFormat = "HH:mm DD.MM.YYYY"
 const mph_to_mps = 0.44704
-const windToGen = [1,1,2,2,3,4,7,11,16,21,24,29,31,32,33,34,34,34,34,35,34,35,30,31,27.5,30.5,24,20,12,9,9,9,6,6,9.5,4.5]
-const predToRisk = [0.0,0.0,0.0,0.0, 0.022, 0.018, 0.02, 0.015, 0.026, 0.02, 0.014, 0.022, 0.007, 0.055, 0.082, 0.128, 0.107, 0.064, 0.146, 0.223, 0.2, 0.179, 0.123, 0.489, 0.297, 0.405, 0.605, 0.448, 0.537, 0.521, 0.685, 0.586, 0.78, 0.751, 0.855, 0.793, 0.742, 0.781, 0.917, 0.953, 0.853, 0.571, 0.649, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-const timeToDemand = [
-  [ 15.635, 17.215, 18.155, 17.78, 18.265, 18.495, 19.06, 21.245, 22.145, 22.59, 21.51, 20.59, 22.705, 22.4, 21.42, 21.13, 21.955, 22.39, 23.065, 21.27, 21.89, 22.045, 18.1, 17.425 ],
-  [ 15.585, 17.67, 17.635, 17.46, 18.14, 18.48, 18.905, 20.45, 21.44, 22.115, 21.235, 21.04, 23.13, 22.44, 20.94, 21.43, 21.76, 21.88, 21.665, 21.18, 21.7, 21.16, 17.915, 17.045 ],
-  [ 15.725, 17.545, 17.805, 17.14, 17.865, 18.54, 18.66, 20.475, 21.26, 21.08, 20.18, 20.27, 22.42, 21.775, 19.715, 20.21, 20.965, 21.61, 22.43, 20.905, 21.395, 21.405, 17.945, 17.055 ],
-  [ 15.72, 17.7, 17.665, 17.36, 17.57, 18.025, 18.2, 19.845, 20.325, 21.28, 20.25, 20.285, 22.105, 21.38, 18.93, 19.94, 20.65, 21.02, 22.19, 20.5, 21.045, 21.1, 17.57, 16.805 ],
-  [ 15.625, 17.635, 17.41, 16.99, 17.765, 17.86, 18.425, 20.18, 20.305, 20.955, 20.32, 19.9, 21.84, 21.145, 19.31, 20.125, 21.62, 21.91, 22.165, 21.15, 21.14, 21.145, 17.725, 17.2 ],
-  [ 16.075, 18.33, 18.02, 17.655, 17.76, 18.23, 18.745, 19.27, 18.815, 18.885, 19.135, 19.96, 22.13, 21.52, 19.33, 20.12, 20.795, 21.28, 22.13, 20.7, 21.06, 21.02, 18.12, 17.78 ],
-  [ 16.44, 18.485, 18.905, 18.235, 18.615, 18.73, 18.545, 19.455, 18.3, 18.32, 18.945, 20.005, 21.525, 20.94, 19.415, 19.655, 20.79, 21.345, 21.925, 20.11, 20.875, 21.59, 17.94, 17.5 ]
-];
+const pred_to_risk = [ 0,0,0.0,0.0,0.0,0.004700352526439483,0.013785790031813362,0.07435197817189632,0.24439461883408073,0.484375,0.588715953307393,0.7629255989911727,0.811217510259918,0.7034068136272545,0.6620370370370371,0.6879194630872483,0.6879194630872483,0.6879194630872483,0.6879194630872483,0.6879194630872483]
 
-  (async () => {
-    $(".load-modal").fadeIn()
-    //const model = await tf.loadLayersModel("data/WT-Percep-ERE/model.json");
-    $.ajax(apiUrl).done(p => {
-      forecasts = parseAndPredict(p)
-      renderForecast(forecasts)
-      makeGraph(forecasts)
-      $(".load-modal").fadeOut()
-    })
-  })();
 
-function parseAndPredict(p) {
+function parseAndPredict(p, model) {
   days = p.SiteRep.DV.Location.Period
   forecasts = []
   days.forEach((day,i) => {
@@ -139,7 +129,7 @@ function parseAndPredict(p) {
       time.speed = t.S*mph_to_mps
       time.weekday = time.date.isoWeekday()
       time.hour = time.date.hour()+1
-      time.prediction = predict(time.speed,time.weekday,time.hour)
+      time.prediction = model.predict(tf.tensor2d([[time.speed,time.weekday,time.hour]])).dataSync()[0]
       time.risk = getRisk(time.prediction)
       sameDay.times.push(time)
     })
@@ -166,32 +156,15 @@ function renderForecast(fs) {
   })
 }
 
-linPol = (x,ys) => {
+function getRisk(pred){
   //Wohooo Linear Interpolation!
+  x = (pred-0.025)*20
   x0 = Math.floor(x)
   x1 = Math.ceil(x)
-  y0 = ys[x0]
-  y1 = ys[x1]
-  y = (y0*(x1-x)+y1*(x-x0))/(x1-x0)
-  return y
-}
-
-function getGen(wind){
-  return linPol(wind,windToGen)
-}
-
-function getDem(d,h) {
-  return timeToDemand[d][h]
-}
-
-function getRisk(pred){
-  x = pred + 25
-  risk = linPol(x,predToRisk)
+  y0 = pred_to_risk[x0]
+  y1 = pred_to_risk[x1]
+  risk = (y0*(x1-x)+y1*(x-x0))/(x1-x0)
   return risk
-}
-
-function predict(w,d,h) {
-  return getGen(w) - getDem(d,h)
 }
 
 function makeGraph(fs) {
