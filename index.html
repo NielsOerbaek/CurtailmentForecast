@@ -137,7 +137,7 @@ function parseAndPredict(p) {
       time.date = sameDay.date.clone()
       time.date.hour(t["$"]/60)
       time.speed = t.S*mph_to_mps
-      time.weekday = time.date.isoWeekday()
+      time.weekday = time.date.isoWeekday()-1
       time.hour = time.date.hour()+1
       time.prediction = predict(time.speed,time.weekday,time.hour)
       time.risk = getRisk(time.prediction)
