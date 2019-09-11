@@ -161,6 +161,46 @@ nav .brand-logo {
   transform: translate(-50%,-50%);
 }
 
+/* Report page */
+
+.pdf-links {
+  margin-top: 50px;
+  text-align: center;
+}
+
+.pdf-links a h4 {
+  color: rgba(0,0,0,0.87);
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.pdf-links img {
+  max-width: 100%;
+  width: 400px;
+  -webkit-box-shadow: 2px 2px 11px 0px rgba(0,0,0,0.33);
+  -moz-box-shadow: 2px 2px 11px 0px rgba(0,0,0,0.33);
+  box-shadow: 2px 2px 11px 0px rgba(0,0,0,0.33);
+}
+
+.pdf-links a {
+  opacity: 0.8;
+  transition: all 150ms ease;
+  display: block;
+  margin-bottom: 50px;
+}
+
+.pdf-links a:hover {
+  opacity: 1;
+}
+
+.abstract p {
+  font-size: 18px;
+}
+
+.title-part {
+  text-align: center;
+}
+
 /* Fancy Loader */
 .lds-grid {
   display: inline-block;
